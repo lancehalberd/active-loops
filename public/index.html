@@ -11,7 +11,7 @@
     <!-- mobile support -->
     <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
     
-    <title>Idle Loops</title>
+    <title>Active Loops</title>
     <link rel="stylesheet" href="themes.css">
     <link rel="stylesheet" href="predictor.css">
     <link rel="stylesheet" href="stylesheet.css">
@@ -21,29 +21,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
     <link rel="manifest" href="manifest.webmanifest">
-    
-    <script src='lib/jquery.min.js'></script>
-    <script src='lib/lz-string.min.js'></script>
-    <script src='lib/d3.v7.min.js'></script>
-    <script src='lib/mousetrap.min.js'></script>
-
-    <script src='polyfills.js'></script>
-
 </head>
-
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-D7MKZE2ZZH"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-D7MKZE2ZZH');
-</script>
-<!-- Google API (for cloud saves) -->
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-<script src="https://apis.google.com/js/api.js" async defer></script>
-
 <body id="theBody" style="min-width:1210px">
     <div id="loadingBox" class="showWhileLoading hideWhenLoaded">
         <!-- This will only be visible if the localization has never been loaded in this browser -->
@@ -65,7 +43,7 @@
     <main id="main">
         <div id="statsColumn">
             <!-- The stat view starts out in radar mode so that init() can get text lengths -->
-            <div id="statsWindow" data-view="radar">
+            <div id="statsWindow" data-view="regular">
                 <div id="statsTitle" class="showthat block">
                     <div class="large bold localized" data-lockey="stats>title"></div>
                     <div class="showthis localized" data-lockey="stats>tooltip>explanation" style="width:550px;"></div>
@@ -529,40 +507,6 @@
         }
     </script>
 
-    <script src="data.js"></script>
-    <script src="localization.js"></script>
-    <script src="helpers.js"></script>
-    <script src="uicomponents.js"></script>
-    <script src="google.js"></script>
-    <script src="actionList.js"></script>
-    <script src="actionLog.js"></script>
-    <script src="interval.js"></script>
-    <script src="driver.js"></script>
-    <script src="stats.js"></script>
-    <script src="statsgraph.js"></script>
-    <script src="actions.js"></script>
-    <script src="views/main.view.js"></script>
-    <script src="town.js"></script>
-    <script src="talents.js"></script>
-    <script src="prestige.js"></script>
-    <script src="saving.js"></script>
-    <script src="challenges.js"></script>
-    <script src="hotkeys.js"></script>
-    <script src="predictor.js"></script>
-    <script src="views/views.js"></script>
-    <script src="views/menu.view.js"></script>
-    <script src="views/trackedresources.view.js"></script>
-    <script src="views/timecontrols.view.js"></script>
-    <script src="views/buffs.view.js"></script>
-    <script src="views/talenttree.view.js"></script>
-    <script>
-        loadDefaults();
-        Localization.ready.then(() => {
-            Views.draw();
-            Localization.localizePage("game");
-            localStorage["loadingText"] = document.getElementById("loadingText").textContent;
-            startGame();
-        });
-    </script>
+    <script src="client.js"></script>
 </body>
 </html>

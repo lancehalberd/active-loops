@@ -1,4 +1,6 @@
+import {requireElementById} from 'app/utils/dom';
 
+const playPauseButton = requireElementById('pausePlay');
 export function pauseGame(state: GameState, ping: boolean, message: string) {
     state.gameIsStopped = !state.gameIsStopped;
     /*if (needsDataSnapshots()) {
@@ -12,8 +14,8 @@ export function pauseGame(state: GameState, ping: boolean, message: string) {
         clearPauseNotification();
     }
     document.title = state.gameIsStopped ? "*PAUSED* Idle Loops" : "Idle Loops";
-    document.getElementById("pausePlay").textContent = state.gameIsStopped ? "Play" : "Pause";
-    if (!state.gameIsStopped && (state.shouldRestart || timer >= timeNeeded)) {
+    playPauseButton.textContent = state.gameIsStopped ? "Play" : "Pause";
+    if (!state.gameIsStopped && (state.shouldRestart /*|| timer >= timeNeeded*/)) {
         restart(state);
     } else if (ping) {
         if (state.options.pingOnPause) {
@@ -24,6 +26,10 @@ export function pauseGame(state: GameState, ping: boolean, message: string) {
             showPauseNotification(message || "Game paused!");
         }
     }
+}
+
+export function addMana(state: GameState, amount: number) {
+    state.loopState.mana += amount;
 }
 
 
@@ -67,15 +73,15 @@ function restart(state: GameState) {
     }*/
 }
 
-let pauseNotification;
-function showPauseNotification(message) {
-    pauseNotification = new Notification("Idle Loops", { icon: "favicon-32x32.png", body: message, tag: "paused", renotify: true });
+let pauseNotification: Notification|undefined;
+function showPauseNotification(message: string) {
+    // pauseNotification = new Notification("Idle Loops", { icon: "favicon-32x32.png", body: message, tag: "paused", renotify: true });
 }
 
 function clearPauseNotification() {
     if (pauseNotification) {
         pauseNotification.close();
-        pauseNotification = null;
+        pauseNotification = undefined;
     }
 }
 

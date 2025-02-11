@@ -336,14 +336,6 @@ function addActionToList(name, townNum, isTravelAction, insertAtIndex) {
     view.updateLockedHidden();
 }
 
-// mana and resources
-
-function addMana(amount) {
-    timeNeeded += amount;
-}
-
-
-
 function changeActionAmount(amount) {
     amount = Math.max(amount, 1);
     amount = Math.min(amount, 1e12);

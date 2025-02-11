@@ -1,6 +1,5 @@
 //import {pauseGame} from 'app/utils/driver';
 
-export const stats = <const>["Dex", "Str", "Con", "Spd", "Per", "Cha", "Int", "Luck", "Soul"];
 export const maxExperience = 505000;
 // This is the inverse of getTotalExperinceForLevel
 // 100 -> 1, 300 -> 2, 600 -> 3, ... 505000 -> 100
@@ -20,6 +19,27 @@ export function getExperienceForSingleLevel(level: number): number {
 export function getProgressLevel(state: GameState, progressKey: ProgressKey) {
     return getLevelForExperience(state.progressMap[progressKey] ?? 0);
 }
+
+export function getPercentToNextLevel(totalXP: number) {
+    const level = getLevelForExperience(totalXP);
+    const currentProgress = totalXP - getTotalExperinceForLevel(level);
+    return currentProgress / getExperienceForSingleLevel(level + 1);
+}
+
+export function getLevelDetails(totalExperience: number) {
+    const level = getLevelForExperience(totalExperience);
+    const currentExperience = totalExperience - getTotalExperinceForLevel(level);
+    const experienceForNextLevel = getExperienceForSingleLevel(level + 1);
+    const percentToNextLevel = currentExperience / experienceForNextLevel;
+    return {
+        totalExperience,
+        level,
+        currentExperience,
+        experienceForNextLevel,
+        percentToNextLevel,
+    };
+}
+
 /*
 export function gainProgressExpereince(state: GameState, key: ProgressKey, amount: number) {
     let experience = state.progressMap[key] ?? 0;

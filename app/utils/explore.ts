@@ -1,7 +1,5 @@
-import {getExperienceForSingleLevel, getTotalExperinceForLevel} from 'app/utils/experience';
-
-// TODO: import this.
-const towns = [];
+// import {getExperienceForSingleLevel, getTotalExperinceForLevel} from 'app/utils/experience';
+import {zoneIndexes} from 'app/zones';
 
 export function getExploreSkill(state: GameState): number {
     return Math.floor(Math.sqrt(getExploreProgress(state)));
@@ -11,9 +9,20 @@ export function getExploreProgress(state: GameState): number {
     //ExploreProgress == mean of all zones' survey progress, rounded down.
     const totalExploreProgress = getTotalExploreProgress();
     if (totalExploreProgress == 0) return 0;
-    else return Math.max(Math.floor(totalExploreProgress / towns.length), 1);
+    else return Math.max(Math.floor(totalExploreProgress / zoneIndexes.length), 1);
 }
 
+export function getTotalExploreProgress() {
+    //TotalExploreProgress == total of all zones' survey progress.
+    let totalExploreProgress = 0;
+    //towns.forEach((town, index) => {
+    //    if (town.getLevel("SurveyZ"+index)) totalExploreProgress += town.getLevel("SurveyZ"+index);
+    //});
+    return totalExploreProgress;
+}
+
+// TODO: import this.
+/*
 
 function fullyExploredZones() {
     let fullyExplored = 0;
@@ -21,14 +30,6 @@ function fullyExploredZones() {
         if (town.getLevel(`SurveyZ${index}`) == 100) fullyExplored++;
     })
     return fullyExplored;
-}
-export function getTotalExploreProgress() {
-    //TotalExploreProgress == total of all zones' survey progress.
-    let totalExploreProgress = 0;
-    towns.forEach((town, index) => {
-        if (town.getLevel("SurveyZ"+index)) totalExploreProgress += town.getLevel("SurveyZ"+index);
-    });
-    return totalExploreProgress;
 }
 function getExploreExp() {
     //ExploreExp == total survey exp across all zones
@@ -44,9 +45,8 @@ function getExploreExpSinceLastProgress() {
     let levelsSinceLastProgress = totalExploreProgress <= 1 ? 1
                                 : totalExploreProgress < towns.length * 2 ? totalExploreProgress - 1
                                 : totalExploreProgress % towns.length + 1;
-    /** @type {{[I in TownNum]?: number}} */
+
     const levelsPerTown = {};
-    /** @param {Town} town  */
     function expSinceLast(town) {
         const varName = `SurveyZ${town.index}`;
         const level = town.getLevel(varName) - (levelsPerTown[town.index] ?? 0);
@@ -75,9 +75,8 @@ function getExploreExpToNextProgress() {
     let levelsToNextProgress = totalExploreProgress === 0 ? 1
                              : totalExploreProgress < towns.length * 2 ? towns.length * 2 - totalExploreProgress
                              : towns.length - (totalExploreProgress % towns.length);
-    /** @type {{[I in TownNum]?: number}} */
+
     const levelsPerTown = {};
-    /** @param {Town} town  */
     function expToNext(town) {
         const varName = `SurveyZ${town.index}`;
         const level = town.getLevel(varName) + (levelsPerTown[town.index] ?? 0);
@@ -121,3 +120,4 @@ function exchangeMap() {
         addResource("completedMap", -1);
     }
 }
+*/

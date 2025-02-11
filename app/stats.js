@@ -91,21 +91,6 @@ class Stat extends Localizable {
         return this.#manaMultiplier;
     }
 
-    #tbxTalent;
-    #tbxSoulstone;
-    #tbxPrestige;
-    #totalBonusXP;
-    get totalBonusXP() {
-        const prestigeLevel = getBuffLevel(this.prestigeBuff);
-        if (this.#tbxSoulstone !== this.soulstone || this.#tbxTalent !== this.talentLevelExp.level || this.#tbxPrestige !== prestigeLevel) {
-            this.#tbxSoulstone = this.soulstone;
-            this.#tbxTalent = this.talentLevelExp.level;
-            this.#tbxPrestige = prestigeLevel;
-            this.#totalBonusXP = this.soulstoneMult * this.talentMult * prestigeBonus(this.prestigeBuff);
-        }
-        return this.#totalBonusXP;
-    }
-
     toJSON() {
         const toSave = {...this};
         // Backwards compatibility
@@ -232,20 +217,6 @@ function getExpOfSingleTalent(level) {
     return level * 100;
 }
 
-/** @param {StatName} stat */
-function getPrcToNextLevel(stat) {
-    const curLevelProgress = stats[stat].statLevelExp.exp;
-    const nextLevelNeeds = stats[stat].statLevelExp.expRequiredForNextLevel;
-    return Math.floor(curLevelProgress / nextLevelNeeds * 100 * 10) / 10;
-}
-
-/** @param {StatName} stat */
-function getPrcToNextTalent(stat) {
-    const curLevelProgress = stats[stat].talentLevelExp.exp;
-    const nextLevelNeeds = stats[stat].talentLevelExp.expRequiredForNextLevel;
-    return Math.floor(curLevelProgress / nextLevelNeeds * 100 * 10) / 10;
-}
-
 
 /** @param {BuffName} buff */
 function getBuffLevel(buff) {
@@ -271,37 +242,6 @@ function getRitualBonus(min, max, speed)
 function getSurveyBonus(town)
 {
     return town.getLevel("Survey") * .005;
-}
-
-function getArmorLevel() {
-    return 1 + ((resources.armor + 3 * resources.enchantments) * getCraftGuildRank().bonus) / 5;
-}
-
-function getSelfCombat() {
-    return ((getSkillLevel("Combat") + getSkillLevel("Pyromancy") * 5) 
-                * getArmorLevel() 
-                * (1 + getBuffLevel("Feast") * .05)) 
-                * prestigeBonus("PrestigeCombat");
-}
-
-function getZombieStrength() {
-    return getSkillLevel("Dark") 
-                * resources.zombie / 2 
-                * Math.max(getBuffLevel("Ritual") / 100, 1) 
-                * (1 + getBuffLevel("Feast") * .05)  
-                * prestigeBonus("PrestigeCombat");
-}
-
-function getTeamStrength() {
-    return ((getSkillLevel("Combat") + getSkillLevel("Restoration") * 4) 
-                * (resources.teamMembers / 2) 
-                * getAdvGuildRank().bonus * getSkillBonus("Leadership") 
-                * (1 + getBuffLevel("Feast") * .05))
-                * prestigeBonus("PrestigeCombat");
-}
-
-function getTeamCombat() {
-    return getSelfCombat() + getZombieStrength() + getTeamStrength();
 }
 
 /**
@@ -362,9 +302,4 @@ function restartStats() {
         else stats[statList[i]].statLevelExp.setLevel(getBuffLevel("Imbuement2"));
     }
     view.requestUpdate("updateStats", true);
-}
-
-/** @param {typeof statList[number]} statName */
-function getTotalBonusXP(statName) {
-    return stats[statName].totalBonusXP;
 }

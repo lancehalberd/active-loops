@@ -1,19 +1,19 @@
 import {BasicAction, CheckAction, DungeonAction, MultipartAction, ProgressAction} from 'app/actions/action';
 import {addAction} from 'app/actions/allActions';
-import {unlockZone} from 'app/utils/driver';
+import {addMana, unlockZone} from 'app/utils/driver';
 import {getProgressLevel} from 'app/utils/experience';
 import {getExploreProgress} from 'app/utils/explore';
 import {fibonacci, numberToWords, precision3} from 'app/utils/helpers';
 import {adjustGoldCostFromPrestige} from 'app/utils/prestige';
 import {setBooleanResource, gainResource, resetResource} from 'app/utils/resources';
-import {gainSkillExperienceForAction, getSkillBonus, getSkillLevel, getSkillMod} from 'app/utils/skills';
+import {gainSkillExperienceForAction, getSelfCombat, getSkillBonus, getSkillLevel, getSkillMod} from 'app/utils/skills';
 
 //Zone 1 - Beginnersville
-const townIndex = 0;
+const zoneIndex = 0;
 addAction(new BasicAction({
     key: 'mapZ0',
     label: 'Map',
-    townIndex,
+    zoneIndex,
     stats: {
         Cha: 0.8,
         Luck: 0.1,
@@ -36,7 +36,7 @@ addAction(new BasicAction({
 addAction(new ProgressAction({
     key: 'zone0Explore',
     label: 'Wander',
-    townIndex,
+    zoneIndex,
     manaCost: 250,
     stats: {
         Per: 0.2,
@@ -50,13 +50,13 @@ addAction(new ProgressAction({
     // I think this is used to display the smaller icons on the action.
     // affectedBy: ["Buy Glasses"],
     progressKey: 'zone0Explored',
-    progressPerAction:(state: GameState) => 200 * (state.loopState.resources.glasses ? 4 : 1),
+    progressPerAction:(state: GameState) => 200 * (state.loopState.booleanResources.has('glasses') ? 4 : 1),
 }));
 addAction(new CheckAction({
     key: 'smashPots',
     checkKey: 'pots',
     label: 'Smash Pots',
-    townIndex,
+    zoneIndex,
     stats: {
         Str: 0.2,
         Per: 0.2,
@@ -75,7 +75,7 @@ addAction(new CheckAction({
     },
     onSuccess(state: GameState): number {
         const manaGain = Math.floor(100 * getSkillBonus(state, 'Dark'));
-        addMana(manaGain);
+        addMana(state, manaGain);
         return manaGain;
     },
 }));
@@ -83,7 +83,7 @@ addAction(new CheckAction({
     key: 'pickLocks',
     checkKey: 'locks',
     label: 'Pick Locks',
-    townIndex,
+    zoneIndex,
     stats: {
         Dex: 0.5,
         Per: 0.3,
@@ -109,7 +109,7 @@ addAction(new CheckAction({
 addAction(new BasicAction({
     key: 'buyGlasses',
     label: 'Buy Glasses',
-    townIndex,
+    zoneIndex,
     stats: {
         Cha: 0.7,
         Spd: 0.3
@@ -137,7 +137,7 @@ addAction(new BasicAction({
 addAction(new BasicAction({
     key: 'findGlasses',
     label: 'Found Glasses',
-    townIndex,
+    zoneIndex,
     expMult: 0,
     stats: {},
     manaCost: 0,
@@ -161,7 +161,7 @@ addAction(new BasicAction({
 addAction(new BasicAction({
     key: 'buyManaZ0',
     label: 'Buy Mana',
-    townIndex,
+    zoneIndex,
     stats: {
         Cha: 0.7,
         Int: 0.2,
@@ -172,14 +172,14 @@ addAction(new BasicAction({
     unlocked: (state: GameState) => (getProgressLevel(state, 'zone0Explored') >= 20),
     onComplete(state: GameState) {
         const manaPerGold = Math.floor(50 * getSkillBonus(state, 'Mercantilism') * adjustGoldCostFromPrestige(state));
-        addMana(state.loopState.resources.gold * manaPerGold);
+        addMana(state, state.loopState.resources.gold * manaPerGold);
         resetResource(state, 'gold');
     }
 }));
 addAction(new ProgressAction({
     key: 'meetPeople',
     label: 'Meet People',
-    townIndex,
+    zoneIndex,
     manaCost: 800,
     stats: {Int: 0.1, Cha: 0.8, Soul: 0.1},
     visible: (state: GameState) => (getProgressLevel(state, 'zone0Explored') >= 10),
@@ -190,7 +190,7 @@ addAction(new ProgressAction({
 addAction(new BasicAction({
     key: 'trainStrength',
     label: 'Train Strength',
-    townIndex,
+    zoneIndex,
     expMult: 4,
     stats: {Str: 0.8, Con: 0.2},
     manaCost: 2000,
@@ -205,7 +205,7 @@ addAction(new CheckAction({
     key: 'shortQuest',
     checkKey: 'shortQuests',
     label: 'Short Quest',
-    townIndex,
+    zoneIndex,
     stats: {Str: 0.2, Dex: 0.1, Cha: 0.3, Spd: 0.2, Luck: 0.1, Soul: 0.1},
     manaCost: 600,
     visible: (state: GameState) => (getProgressLevel(state, 'zone0People') >= 1),
@@ -226,7 +226,7 @@ addAction(new CheckAction({
 addAction(new ProgressAction({
     key: 'investigate',
     label: 'Investigate',
-    townIndex,
+    zoneIndex,
     manaCost: 1000,
     stats: {Per: 0.3, Cha: 0.4, Spd: 0.2, Luck: 0.1},
     visible: (state: GameState) => (getProgressLevel(state, 'zone0People') >= 5),
@@ -238,7 +238,7 @@ addAction(new CheckAction({
     key: 'longQuest',
     checkKey: 'longQuests',
     label: 'Long Quest',
-    townIndex,
+    zoneIndex,
     stats: {Str: 0.2, Int: 0.2, Con: 0.4, Spd: 0.2},
     manaCost: 1500,
     visible: (state: GameState) => (getProgressLevel(state, 'zone0Investigated') >= 1),
@@ -260,7 +260,7 @@ addAction(new CheckAction({
 addAction(new ProgressAction({
     key: 'throwParty',
     label: 'Throw Party',
-    townIndex,
+    zoneIndex,
     expMult: 2,
     manaCost: 1600,
     stats: {Cha: 0.8, Soul: 0.2},
@@ -274,7 +274,7 @@ addAction(new ProgressAction({
 addAction(new BasicAction({
     key: 'warriorLessons',
     label: 'Warrior Lessons',
-    townIndex,
+    zoneIndex,
     expMult: 1.5,
     stats: {Str: 0.5, Dex: 0.3, Con: 0.2},
     skills: {Combat: 100},
@@ -287,7 +287,7 @@ addAction(new BasicAction({
 addAction(new BasicAction({
     key: 'mageLessons',
     label: 'Mage Lessons',
-    townIndex,
+    zoneIndex,
     expMult: 1.5,
     stats: {Per: 0.3, Int: 0.5, Con: 0.2},
     skills: {Magic: (state: GameState) => 100 * (1 + getSkillLevel(state, 'Alchemy') / 100)},
@@ -300,7 +300,7 @@ addAction(new BasicAction({
 addAction(new MultipartAction({
     key: 'healTheSick',
     label: 'Heal The Sick',
-    townIndex,
+    zoneIndex,
     stats: {Per: 0.2, Int: 0.2, Cha: 0.2, Soul: 0.4},
     skills: {Magic: 10},
     manaCost: 2500,
@@ -329,7 +329,7 @@ addAction(new MultipartAction({
 addAction(new MultipartAction({
     key: 'fightMonsters',
     label: 'Fight Monsters',
-    townIndex,
+    zoneIndex,
     stats: {Str: 0.3, Spd: 0.3, Con: 0.3, Luck: 0.1},
     skills: {Combat: 10},
     manaCost: 2000,
@@ -352,7 +352,7 @@ addAction(new MultipartAction({
         return fibonacci((segmentIndex + 2 * barIndex / 3 + 0.0000001) | 0) * 10000;
     },
     getProgressMultiplier(state: GameState, totalCompletions: number) {
-        return getSelfCombat() * Math.sqrt(1 + totalCompletions / 100);
+        return getSelfCombat(state) * Math.sqrt(1 + totalCompletions / 100);
     },
     onCompleteSegment(state: GameState) {
         gainResource(state, 'gold', 20);
@@ -362,7 +362,7 @@ addAction(new MultipartAction({
 addAction(new DungeonAction({
     key: 'smallDungeon',
     label: 'Small Dungeon',
-    townIndex,
+    zoneIndex,
     stats: { Str: 0.1, Dex: 0.4, Con: 0.3, Cha: 0.1, Luck: 0.1},
     skills: {Combat: 5, Magic: 5},
     manaCost: 2000,
@@ -387,19 +387,19 @@ addAction(new DungeonAction({
     getProgressMultiplier(state: GameState, totalCompletions: number) {
         const curFloor = state.loopState.multipartProgressMap.smallDungeon?.barIndex ?? 0;
         const floorCompletions = state.dungeonFloorCompletions.smallDungeon[curFloor].completed ?? 0;
-        return (getSelfCombat() + getSkillLevel(state, 'Magic')) * Math.sqrt(1 + floorCompletions / 200);
+        return (getSelfCombat(state) + getSkillLevel(state, 'Magic')) * Math.sqrt(1 + floorCompletions / 200);
     },
     onComplete: gainSkillExperienceForAction,
 }));
 addAction(new BasicAction({
     key: 'buySupplies',
     label: 'Buy Supplies',
-    townIndex,
+    zoneIndex,
     stats: {Cha: 0.8, Luck: 0.1, Soul: 0.1},
     manaCost: 200,
     canStart: (state: GameState) => (
         state.loopState.resources.gold >= state.loopState.suppliesCost
-        && !state.loopState.booleanResources.supplies
+        && !state.loopState.booleanResources.has('supplies')
     ),
     payCost: (state: GameState) => gainResource(state, 'gold', -state.loopState.suppliesCost),
     maxAllowed: 1,
@@ -410,7 +410,7 @@ addAction(new BasicAction({
 addAction(new BasicAction({
     key: 'haggle',
     label: 'Haggle',
-    townIndex,
+    zoneIndex,
     stats: {Cha: 0.8, Luck: 0.1, Soul: 0.1},
     manaCost: 100,
     canStart: (state: GameState) => (state.loopState.resources.reputation >= 1),
@@ -425,10 +425,10 @@ addAction(new BasicAction({
 addAction(new BasicAction({
     key: 'z0z1',
     label: 'Start Journey',
-    townIndex,
+    zoneIndex,
     stats: {Con: 0.4, Per: 0.3, Spd: 0.3},
     manaCost: 1000,
-    canStart: (state: GameState) => state.loopState.booleanResources.supplies,
+    canStart: (state: GameState) => state.loopState.booleanResources.has('supplies'),
     payCost: (state: GameState) => setBooleanResource(state, 'supplies', false),
     maxAllowed: 1,
     visible: (state: GameState) => ((getSkillLevel(state, "Combat") + getSkillLevel(state, "Magic")) >= 15),
@@ -438,7 +438,7 @@ addAction(new BasicAction({
 addAction(new BasicAction({
     key: 'z0z2',
     label: 'Hitch Ride',
-    townIndex,
+    zoneIndex,
     stats: {Cha: 0.5, Per: 0.5},
     manaCost: 1,
     payCost: (state: GameState) => setBooleanResource(state, 'supplies', false),
@@ -450,7 +450,7 @@ addAction(new BasicAction({
 addAction(new BasicAction({
     key: 'z0z5',
     label: 'Open Rift',
-    townIndex,
+    zoneIndex,
     stats: {Int: 0.2, Luck: 0.1, Soul: 0.7},
     skills: {Dark: 1000},
     manaCost: 50000,

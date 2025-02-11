@@ -1,10 +1,10 @@
 Math.log2 = Math.log2 || function(x) { return Math.log(x) * Math.LOG2E; };
 Math.log10 = Math.log10 || function(x) { return Math.log(x) * Math.LOG10E; };
 
-function round1(num) {
+export function round1(num: number) {
     return Math.floor(num * 10) / 10;
 }
-function round2(num) {
+export function round2(num: number) {
     return Math.floor(num * 100) / 100;
 }
 
@@ -18,19 +18,19 @@ export function precision4(num: number) {
     return Number(num.toPrecision(4));
 }
 
-function pxToInt(num) {
+export function pxToInt(num: string): number {
     return parseFloat(num.substring(0, num.indexOf("px")));
 }
 
-function round(num) {
+export function round(num: number): string {
     return formatNumber(num);
 }
 
-function formatNumber(num) {
+export function formatNumber(num: number): string {
     return Math.floor(num).toString().replace(/\B(?=(\d{3})+(?!\d))/gu, ",");
 }
 
-function formatTime(seconds) {
+export function formatTime(seconds: number) {
     if (seconds > 300) {
         let second = Math.floor(seconds%60);
         let minute = Math.floor(seconds/60%60);
@@ -46,76 +46,56 @@ function formatTime(seconds) {
         return timeString;
     }
     if (Number.isInteger(seconds)) {
-        return (formatNumber(seconds) + _txt("time_controls>seconds")).replace(/\B(?=(\d{3})+(?!\d))/gu, ",");
+        return (formatNumber(seconds) + 'seconds').replace(/\B(?=(\d{3})+(?!\d))/gu, ",");
     }
     if (seconds < 10) {
-        return seconds.toFixed(2) + _txt("time_controls>seconds");
+        return seconds.toFixed(2) + 'seconds';
     }
-    return (seconds.toFixed(1) + _txt("time_controls>seconds")).replace(/\B(?=(\d{3})+(?!\d))/gu, ",");
+    return (seconds.toFixed(1) + 'seconds').replace(/\B(?=(\d{3})+(?!\d))/gu, ",");
 }
 
-function copyArray(arr) {
-    return JSON.parse(JSON.stringify(arr));
-}
 
-/** @type {<T>(obj: T) => T} */
-function copyObject(obj) {
-    return JSON.parse(JSON.stringify(obj));
-}
-
-function withinDistance(x1, y1, x2, y2, radius) {
+export function withinDistance(x1: number, y1: number, x2: number, y2: number, radius: number) {
     return getDistance(x1, y1, x2, y2) < radius;
 }
 
-function getDistance(x1, y1, x2, y2) {
+function getDistance(x1: number, y1: number, x2: number, y2: number): number {
     return Math.sqrt(Math.pow(Math.abs(x1 - x2), 2) + Math.pow(Math.abs(y1 - y2), 2));
 }
 
-function intToStringNegative(value, amount) {
-    let isPositive = 1;
+export function intToStringNegative(value: number, decimals: number = 3) {
+    let isPositive = true;
     if (value < 0) {
-        isPositive = -1;
+        isPositive = false;
         value *= -1;
     }
     if (value >= 10000) {
-        return (isPositive === 1 ? "+" : "-") + nFormatter(value, 3);
+        return (isPositive ? "+" : "-") + nFormatter(value, 3);
     }
-    let baseValue = 3;
-    if (amount) {
-        baseValue = amount;
-    }
-    return (isPositive === 1 ? "+" : "-") + parseFloat(value).toFixed(baseValue - 1);
+    return (isPositive ? "+" : "-") + value.toFixed(decimals);
 }
 
-function intToString(value, amount, fixPrecision = false) {
-    const prefix = value < 0 ? "-" : "";
-    value = Math.abs(parseFloat(value));
+export function intToString(value: number, decimals: number = 3, fixPrecision = false) {
+    const prefix = value < 0 ? '-' : '';
+    value = Math.abs(value);
     if (value >= 10000) {
         return prefix + nFormatter(value, 3, fixPrecision);
     }
     if (value >= 1000) {
-        let baseValue = 3;
-        if (amount) {
-            baseValue = amount;
-        }
-        const returnVal = parseFloat(value).toFixed(baseValue - 1);
+        const returnVal = value.toFixed(decimals);
         return `${prefix}${returnVal[0]},${returnVal.substring(1)}`;
     }
-    let baseValue = 3;
-    if (amount) {
-        baseValue = amount;
-    }
-    return prefix + parseFloat(value).toFixed(baseValue - 1);
+    return prefix + value.toFixed(decimals);
 }
 
-function intToStringRound(value) {
+export function intToStringRound(value: number): string {
     if (value >= 10000) {
         return nFormatter(value, 3);
     }
-    return Math.floor(value);
+    return '' + Math.floor(value);
 }
 
-function toSuffix(value) {
+export function toSuffix(value: number): string {
     value = Math.round(value);
     const suffixes = ["", "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "O", "N", "Dc", "Ud", "Dd", "Td", "qd", "Qd", "sd", "Sd", "Od", "Nd", "V"];
     const suffixNum = Math.floor(((String(value)).length - 1) / 3);
@@ -123,9 +103,8 @@ function toSuffix(value) {
     const valueRepr = shortValue % 1 !== 0 ? shortValue.toPrecision(3) : shortValue.toString();
     return valueRepr + suffixes[suffixNum];
 }
-
+/*
 const Mana = {
-    /** @param {number} value @param {number} [minNonZero] */
     ceil(value, minNonZero) {
         return value === 0 ? 0
                 : !options.fractionalMana ? Math.ceil(value)
@@ -134,7 +113,6 @@ const Mana = {
                 : Math.min(value, -minNonZero);
     },
     
-    /** @param {number} value @param {number} [minNonZero] */
     floor(value, minNonZero) {
         return value === 0 ? 0
                 : !options.fractionalMana ? Math.floor(value)
@@ -143,7 +121,6 @@ const Mana = {
                 : Math.min(value, -minNonZero);
     },
     
-    /** @param {number} value @param {number} [minNonZero] */
     round(value, minNonZero) {
         return value === 0 ? 0
                 : !options.fractionalMana ? Math.round(value)
@@ -152,12 +129,10 @@ const Mana = {
                 : Math.min(value, -minNonZero);
     },
 }
+*/
 
-/** @param {number} value @param {number} min @param {number} max */
-function clamp(value, min, max) {
-    value = Math.max(value, min ?? -Infinity);
-    value = Math.min(value, max ?? Infinity);
-    return value;
+export function clamp(value: number, min = -Infinity, max = Infinity) {
+    return Math.min(Math.max(value, min), max);
 }
 
 const si = [
@@ -185,7 +160,7 @@ const si = [
 ];
 const rx = /\.0+$|(\.[0-9]*[1-9])0+$/u;
 
-function nFormatter(num, digits, fixPrecision=false) {
+function nFormatter(num: number, digits: number, fixPrecision=false) {
     for (let i = 0; i < si.length; i++) {
         // /1.000501 to handle rounding
         if ((num) >= si[i].value / 1.000501) {
@@ -196,6 +171,7 @@ function nFormatter(num, digits, fixPrecision=false) {
     return num.toPrecision(digits).replace(rx, fixPrecision ? "$&" : "$1");
 }
 
+/*
 function camelize(str) {
     return str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/gu, (match, index) => {
         if (Number(match) === 0) return "";
@@ -205,10 +181,10 @@ function camelize(str) {
 
 function isVisible(obj) {
     return obj.offsetWidth > 0 && obj.offsetHeight > 0;
-}
+}*/
 
-const factorials = [];
-function factorial(n) {
+const factorials: number[] = [];
+export function factorial(n: number): number {
     if (n === 0 || n === 1)
         return 1;
     if (factorials[n] > 0)
@@ -225,6 +201,7 @@ export function fibonacci(n: number): number {
     return fibonaccis[n] = fibonacci(n - 1) + fibonacci(n - 2);
 }
 
+/*
 function sortArrayObjectsByValue(arr, valueName) {
     const n = arr.length;
 
@@ -257,16 +234,7 @@ function removeClassFromDiv(div, className) {
 
 const wrappedElementSymbol = Symbol("wrappedElement");
 
-/**
- * @template {Element} [T=Element]
- * 
- * @param {string|Element} elementOrId 
- * @param {(new() => T)|((new() => T)[])} [expectedClass]
- * @param {boolean} [throwIfMissing] 
- * @param {boolean} [warnIfMissing] 
- * @returns {T}
- */
-function getElement(elementOrId, expectedClass=/** @type {new()=>T} */(Element), throwIfMissing=true, warnIfMissing=true) {
+function getElement(elementOrId, expectedClass=Element, throwIfMissing=true, warnIfMissing=true) {
     const expectedClasses = Array.isArray(expectedClass) ? expectedClass : [expectedClass];
     const element = typeof elementOrId === "string" ? document.getElementById(elementOrId) : elementOrId;
     for (const expected of expectedClasses) {
@@ -274,8 +242,8 @@ function getElement(elementOrId, expectedClass=/** @type {new()=>T} */(Element),
     }
     if (element && wrappedElementSymbol in element) {
         // last try before bailing
-        const wrappedResult = getElement(/** @type {Element}*/(element[wrappedElementSymbol]), expectedClasses, false, false);
-        if (wrappedResult) return /** @type {T} */(element); // returning the wrapper so it can intercept IDL behaviors
+        const wrappedResult = getElement((element[wrappedElementSymbol]), expectedClasses, false, false);
+        if (wrappedResult) return (element); // returning the wrapper so it can intercept IDL behaviors
     }
     if (warnIfMissing) {
         console.warn("Expected element missing or wrong type!", elementOrId, expectedClass, element);
@@ -286,53 +254,41 @@ function getElement(elementOrId, expectedClass=/** @type {new()=>T} */(Element),
     return undefined;
 }
 
-/** @param {string|Element} elementOrId  */
 function htmlElement(elementOrId, throwIfMissing=true, warnIfMissing=true) {
     return getElement(elementOrId, HTMLElement, throwIfMissing, warnIfMissing);
 }
 
-/** @param {string|Element} elementOrId  */
 function inputElement(elementOrId, throwIfMissing=true, warnIfMissing=true) {
     return getElement(elementOrId, HTMLInputElement, throwIfMissing, warnIfMissing);
 }
 
-/** @param {string|Element} elementOrId  */
 function textAreaElement(elementOrId, throwIfMissing=true, warnIfMissing=true) {
     return getElement(elementOrId, HTMLTextAreaElement, throwIfMissing, warnIfMissing);
 }
 
-/** @param {string|Element} elementOrId  */
 function selectElement(elementOrId, throwIfMissing=true, warnIfMissing=true) {
     return getElement(elementOrId, HTMLSelectElement, throwIfMissing, warnIfMissing);
 }
 
-/** @typedef {HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement} HTMLValueElement */
-/** @param {string|Element} elementOrId  */
 function valueElement(elementOrId, throwIfMissing=true, warnIfMissing=true) {
-    return getElement(elementOrId, [/** @type {new() => HTMLValueElement} */(HTMLInputElement), HTMLTextAreaElement, HTMLSelectElement], throwIfMissing, warnIfMissing);
+    return getElement(elementOrId, [(HTMLInputElement), HTMLTextAreaElement, HTMLSelectElement], throwIfMissing, warnIfMissing);
 }
 
-/** @returns {node is HTMLValueElement} */
 function isValueElement(node) {
     return node instanceof HTMLInputElement || node instanceof HTMLTextAreaElement || node instanceof HTMLSelectElement;
 }
 
-/** @param {string|Element} elementOrId  */
 function svgElement(elementOrId, throwIfMissing=true, warnIfMissing=true) {
     return getElement(elementOrId, SVGElement, throwIfMissing, warnIfMissing);
 }
 
-/** @param {string|Element} elementOrId  */
 function templateElement(elementOrId, throwIfMissing=true, warnIfMissing=true) {
     return getElement(elementOrId, HTMLTemplateElement, throwIfMissing, warnIfMissing);
 }
 
-/** @overload @param {string|Element} templateOrId @param {boolean} [alwaysReturnFragment] @returns {Element | DocumentFragment} */
-/** @overload @param {string|Element} templateOrId @param {true} alwaysReturnFragment @returns {DocumentFragment} */
-/** @param {string} templateOrId */
 function cloneTemplate(templateOrId, alwaysReturnFragment=false) {
     const template = templateElement(templateOrId);
-    const fragment = /** @type {DocumentFragment} */(template.content.cloneNode(true));
+    const fragment = (template.content.cloneNode(true));
     if (!alwaysReturnFragment && fragment.childElementCount === 1) {
         return fragment.firstElementChild;
     } else {
@@ -340,25 +296,27 @@ function cloneTemplate(templateOrId, alwaysReturnFragment=false) {
     }
 }
 
+
+
+*/
+
 const numbers = "zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen".split(" ");
 const tens = "twenty thirty forty fifty sixty seventy eighty ninety".split(" ");
-
-function number2Words(n) {
+export function number2Words(n: number): string {
     if (n < 20) return numbers[n];
     const digit = n % 10;
     if (n < 100) return tens[~~(n / 10) - 2] + (digit ? `-${numbers[digit]}` : "");
     if (n < 1000) return `${numbers[~~(n / 100)]} hundred${n % 100 === 0 ? "" : ` ${number2Words(n % 100)}`}`;
     return `${number2Words(~~(n / 1000))} thousand${n % 1000 === 0 ? "" : ` ${number2Words(n % 1000)}`}`;
 }
-
-function capitalizeFirst(s) {
+export function capitalizeFirst(s: string): string {
     return s.charAt(0).toUpperCase() + s.substr(1);
 }
-
 export function numberToWords(n: number): string {
     return capitalizeFirst(number2Words(n));
 }
 
+/*
 function encode(theSave) {
     return Base64.encode(LZWEncode(theSave));
 }
@@ -554,7 +512,6 @@ function roughSizeOfObject(object) {
     return bytes;
 }
 
-/** @type {(object: any, strings?: (string|number)[], map?: Record<string, number>) => any} */
 function extractStrings(object, strings, map) {
     const isToplevel = strings == undefined;
     strings ??= [];
@@ -588,7 +545,6 @@ function extractStrings(object, strings, map) {
     return object;
 }
 
-/** @type {(object: any, strings?: (string|number)[]) => any} */
 function restoreStrings(object, strings) {
     const isTopLevel = strings == undefined;
     if (isTopLevel) {
@@ -626,13 +582,10 @@ async function delay(milliseconds) {
     await new Promise(r => setTimeout(r, milliseconds));    
 }
 
-/** @returns {Promise<DOMHighResTimeStamp>} */
 function nextAnimationFrame() {
-    /** @param {FrameRequestCallback} r */
     return new Promise(r => requestAnimationFrame(r));
 }
 
-/** @param {IdleRequestOptions} [idleRequestOptions] @returns {Promise<IdleDeadline>} */
 function nextIdle(idleRequestOptions) {
     return new Promise(r => requestIdleCallback(r, idleRequestOptions));
 }
@@ -704,26 +657,15 @@ function defineLazyGetter(object, name, getter) {
     });
 }
 
-/** Strongly-typed version of Object.keys */
-const typedKeys = /** @type {<K extends string|number|symbol>(object: Partial<Record<K, any>>) => K[]} */(Object.keys);
 
-/** Strongly-typed version of Object.keys */
-const typedEntries = /** @type {<K extends string|number|symbol, V>(object: Partial<Record<K, V>>) => [K, V][]} */(Object.entries);
 
 const devtoolsHeader = Symbol.for("devtoolsHeader");
 const devtoolsHasBody = Symbol.for("devtoolsHasBody");
 const devtoolsBody = Symbol.for("devtoolsBody");
 
-/**
- * Convenience class for defining devtools formatting 
- * @template {*} DTConfig
- */
 class DevtoolsFormattable {
-    /** @param {DTConfig} config @returns {DTJHTML<this, DTConfig> | null} */
     dtHeader(config) { return null; }
-    /** @param {DTConfig} config */
     dtHasBody(config) { return false; }
-    /** @param {DTConfig} config @returns {DTJHTML<this, DTConfig> | null} */
     dtBody(config) { return null; }
 
     [devtoolsHeader](config) {
@@ -740,7 +682,6 @@ class DevtoolsFormattable {
         new.target.addFormatter();
     }
 
-    /** @type {DTFormatter} */
     static formatter = {
         header(object, config) {
             return object?.[devtoolsHeader]?.(config) ?? null;
@@ -774,4 +715,9 @@ export const Raw = {
         return String.raw(strings, ...exprs);
     },
 }
+*/
 
+const logBarScaleBase = 1.25;
+export function getMaxLogBarScale(maxValue: number): number {
+    return logBarScaleBase ** Math.ceil(Math.log(maxValue) / Math.log(logBarScaleBase));
+}

@@ -1,11 +1,13 @@
-type ZoneIndex = 0|1|2|4|5|6|7|8;
+type ZoneIndex = 0|1|2|3|4|5|6|7|8;
 
 type CharStat = 'Cha' | 'Con' | 'Dex' | 'Int' | 'Luck' | 'Per' | 'Soul' | 'Spd' | 'Str';
 
 type ProgressKey =
     'zone0Explored' | 'zone0People' | 'zone0Investigated'
     | 'zone1Forest' | 'zone1Shortcuts' | 'zone1Hermit' | 'zone1FlowerTrails' | 'zone1Thicket' | 'zone1Witch'
-    | 'zone5Meander';
+    | 'zone5Meander'
+    | 'zone0Survey' | 'zone1Survey' | 'zone2Survey' | 'zone3Survey' | 'zone4Survey'
+    | 'zone5Survey' | 'zone6Survey' | 'zone7Survey' | 'zone8Survey';
 
 type CheckKey = 'pots' | 'locks' | 'shortQuests' | 'longQuests' | 'wildMana' | 'herbs' | 'animals' | 'suckers';
 
@@ -24,6 +26,10 @@ type ResourceType = 'gold' | 'reputation' | 'herbs' | 'hides' | 'potions' | 'tea
 
 type BooleanResourceType = 'glasses' | 'supplies' | 'pickaxe' | 'loopingPotion' | 'citizenship' | 'pegasus' | 'key' | 'stone' | 'wizardCollege';
 
+type BuffKey = "Ritual" | 'Heroism' | 'Feast';
+type PrestigeBuff = 'PrestigeBartering' | 'PrestigeChronomancy' | 'PrestigeCombat' | 'PrestigeExpOverflow'
+    | 'PrestigeMental' | 'PrestigePhysical' | 'PrestigeSpatiomancy';
+
 interface Skill {
     key: string
     getBonus: (skillLevel: number) => number
@@ -36,6 +42,11 @@ interface Action {
     onComplete?: (state: GameState) => void
 }
 
+interface DungeonFloorState {
+    completed: number
+    lootChance: number
+    lastStat?: CharStat
+}
 // Stores state for the entire game.
 interface GameState {
     discoveredZones: Set<ZoneIndex>
@@ -47,17 +58,18 @@ interface GameState {
     talentExperience: {[key in CharStat]: number}
     soulStones: {[key in CharStat]: number}
     skills: {[key in SkillKey]?: number}
+    buffs: {[key in BuffKey]: number}
     multipartCompletions:  {[key in MultipartActionKey]?: number}
-    dungeonFloorCompletions: {[key in DungeonKey]: {
-        completed: number
-        lootChance: number
-        lastStat?: CharStat
-    }[]}
+    dungeonFloorCompletions: {[key in DungeonKey]: DungeonFloorState[]}
     maxTrainings: number
+    gameIsStopped?: boolean
+    shouldRestart?: boolean
 }
 
 interface GameOptions {
-    pauseOnComplete: boolean
+    pauseOnComplete?: boolean
+    notifyOnPause?: boolean
+    pingOnPause?: boolean
 }
 
 interface PrestigeState {
@@ -70,11 +82,9 @@ interface LoopState {
     zoneIndex: ZoneIndex
     // Available resources.
     resources: {
-        [key in string]: number
+        [key in ResourceType]: number
     }
-    booleanResources: {
-        [key in string]: boolean
-    }
+    booleanResources: Set<BooleanResourceType>
     checksLootedMap: {[key in CheckKey]?: number}
     statsExperience: {[key in CharStat]: number}
     multipartProgressMap: {[key in MultipartActionKey]?: {
@@ -83,6 +93,11 @@ interface LoopState {
         segmentProgress: number
     }}
     suppliesCost: number
+    mana: number
+}
+
+interface Window {
+    [key: string]: any;
 }
 
 // Game Data

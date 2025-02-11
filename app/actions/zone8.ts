@@ -1,7 +1,7 @@
 //====================================================================================================
 //Zone 9 - Valley of Olympus
 //====================================================================================================
-Action.ImbueSoul = new MultipartAction("Imbue Soul", {
+/*Action.ImbueSoul = new MultipartAction("Imbue Soul", {
     type: "multipart",
     expMult: 5,
     townNum: 8,
@@ -365,3 +365,4 @@ Action.RestoreTime = new Action("Restore Time", {
         unlockGlobalStory(12);
     }
 });
+*/

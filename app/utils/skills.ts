@@ -1,5 +1,7 @@
 import {computeValue} from 'app/utils/computed';
 import {getExperienceForSingleLevel, getTotalExperinceForLevel} from 'app/utils/experience';
+import {getAdvGuildBonus, getCraftGuildBonus} from 'app/utils/guilds';
+import {prestigeBonus} from 'app/utils/prestige';
 import {typedKeys} from 'app/utils/types';
 
 export const skillList: readonly SkillKey[] = <const>[
@@ -72,13 +74,13 @@ export function gainSkillExperienceForAction(state: GameState, action: Action) {
         return;
     }
     for (const skillKey of typedKeys(action.skills)) {
-        if (!isSkillName(skillKey)) {
-            console.warn(`Unknown skill in handleSkillExp:`, skillKey);
-            continue;
-        }
         const exp = computeValue(state, action, action.skills[skillKey], 0);
         addSkillExp(state, skillKey, exp);
     }
+}
+
+export function getBuffLevel(state: GameState, buffKey: BuffKey) {
+    return state.buffs[buffKey];
 }
 
 export function getPercentToNextSkillLevel(state: GameState, skillKey: SkillKey): string {
@@ -90,7 +92,7 @@ export function getPercentToNextSkillLevel(state: GameState, skillKey: SkillKey)
 
 function addSkillExp(state: GameState, skillKey: SkillKey, amount: number) {
     if (skillKey === "Combat" || skillKey === "Pyromancy" || skillKey === "Restoration") {
-        amount *= 1 + getBuffLevel("Heroism") * 0.02;
+        amount *= 1 + getBuffLevel(state, 'Heroism') * 0.02;
     }
     //const oldLevel = getSkillLevel(state, skillKey);
     state.skills[skillKey] = (state.skills[skillKey] ?? 0) + amount;
@@ -99,4 +101,35 @@ function addSkillExp(state: GameState, skillKey: SkillKey, amount: number) {
     //    actionLog.addSkillLevel(actions.currentAction, skillKey, newLevel, oldLevel);
     //}
     //view.requestUpdate("updateSkill", skillKey);
+}
+
+export function getArmorLevel(state: GameState) {
+    return 1 + ((state.loopState.resources.armor + 3 * state.loopState.resources.enchantments) * getCraftGuildBonus(state)) / 5;
+}
+
+export function getSelfCombat(state: GameState) {
+    return ((getSkillLevel(state, "Combat") + getSkillLevel(state, "Pyromancy") * 5)
+                * getArmorLevel(state)
+                * (1 + getBuffLevel(state, "Feast") * .05))
+                * prestigeBonus(state, "PrestigeCombat");
+}
+
+function getZombieStrength(state: GameState) {
+    return getSkillLevel(state, "Dark")
+                * state.loopState.resources.zombies / 2
+                * Math.max(getBuffLevel(state, "Ritual") / 100, 1)
+                * (1 + getBuffLevel(state, "Feast") * .05)
+                * prestigeBonus(state, "PrestigeCombat");
+}
+
+function getTeamStrength(state: GameState) {
+    return ((getSkillLevel(state, "Combat") + getSkillLevel(state, "Restoration") * 4)
+                * (state.loopState.resources.teamMembers / 2)
+                * getAdvGuildBonus(state) * getSkillBonus(state, "Leadership")
+                * (1 + getBuffLevel(state, "Feast") * .05))
+                * prestigeBonus(state, "PrestigeCombat");
+}
+
+export function getTeamCombat(state: GameState) {
+    return getSelfCombat(state) + getZombieStrength(state) + getTeamStrength(state);
 }

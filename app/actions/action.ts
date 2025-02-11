@@ -1,12 +1,13 @@
 import {computeValue} from 'app/utils/computed';
 import {pauseGame} from 'app/utils/driver';
-import {maxExperience, stats} from 'app/utils/experience';
+import {maxExperience} from 'app/utils/experience';
+import {stats} from 'app/utils/stats';
 import {getSkillBonus} from 'app/utils/skills';
 
 interface BaseActionProps {
     key: string
     label: string
-    townIndex: number
+    zoneIndex: number
     stats: {[key in CharStat]?: number}
     expMult?: number
     manaCost: Computed<number, Action>
@@ -17,12 +18,13 @@ interface BaseActionProps {
     canStart?: (state: GameState) => boolean
     payCost?: (state: GameState) => void
     isLateAction?: boolean
+    onComplete?: (state: GameState, action: Action) => void
 }
 export class BaseAction implements Action {
     key = this.props.key;
     label = this.props.label;
     expMult = this.props.expMult ?? 1;
-    townIndex = this.props.townIndex;
+    zoneIndex = this.props.zoneIndex;
     manaCost = this.props.manaCost;
     skills = this.props.skills;
     visible = this.props.visible;
@@ -32,18 +34,17 @@ export class BaseAction implements Action {
     payCost = this.props.payCost;
     isLateAction = this.props.isLateAction;
     constructor(public props: BaseActionProps) {}
+    onComplete(state: GameState) {
+        this.props.onComplete?.(state, this);
+    }
 }
 
 interface BasicActionProps extends BaseActionProps {
-    onComplete: (state: GameState, action: Action) => void
 }
 export class BasicAction extends BaseAction {
     type = <const>'progress';
     constructor(public props: BasicActionProps) {
         super(props);
-    }
-    onComplete(state: GameState) {
-        this.props.onComplete(state, this);
     }
 }
 
@@ -59,6 +60,7 @@ export class ProgressAction extends BaseAction {
         super(props);
     }
     onComplete(state: GameState) {
+        this.props.onComplete?.(state, this);
         const amountGained = computeValue(state, this, this.progressPerAction, 1);
         let experience = state.progressMap[this.progressKey] ?? 0;
         // return if capped, for performance
@@ -89,6 +91,7 @@ export class CheckAction extends BaseAction {
         super(props);
     }
     onComplete(state: GameState) {
+        this.props.onComplete?.(state, this);
         // error state, negative numbers.
         /*if (this[`total${varName}`] - this[`checked${varName}`] < 0) {
             this[`checked${varName}`] = this[`total${varName}`];
@@ -136,9 +139,6 @@ export class MultipartAction extends BaseAction {
     type = <const>'progress';
     constructor(public props: MultipartActionProps) {
         super(props);
-    }
-    onComplete(state: GameState) {
-        this.props.onComplete(state, this);
     }
 }
 

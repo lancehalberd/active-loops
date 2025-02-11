@@ -924,10 +924,6 @@ function clearPauseNotification() {
     }
 }
 
-function closeTutorial() {
-    document.getElementById("tutorial").style.display = "none";
-}
-
 function clearSave() {
     window.localStorage[defaultSaveName] = "";
     window.localStorage[challengeSaveName] = "";

@@ -7,7 +7,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.(ts|js)$/,
+        test: /\.ts$/,
         use: 'ts-loader',
         exclude: /node_modules/,
         include: /app/,
@@ -24,7 +24,7 @@ module.exports = {
     })
   ],
   resolve: {
-    extensions: [ '.ts', '.js' ],
+    extensions: ['.ts'],
     alias: {
       'app': path.resolve(__dirname, 'app')
     },

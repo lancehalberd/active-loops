@@ -1,7 +1,18 @@
-import {getLevelForExperience} from 'app/utils/experience';
+// import {getLevelForExperience} from 'app/utils/experience';
+
+export const zoneIndexes: ZoneIndex[] = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+export const zoneNames = [
+    'Beginnersville',
+    'Forest',
+    'Merchanton',
+];
+
+export function showZone(zoneIndex: ZoneIndex) {
+
+}
 
 // TODO: Figure out what these are.
-type ProgressScalingType = 'linear';
+/*type ProgressScalingType = 'linear';
 type AnyAction = any;
 
 
@@ -11,7 +22,7 @@ interface TownProgress {
 }
 
 class Town {
-    index: TownIndex;
+    index: ZoneIndex;
     allVarNames: string[] = [];
     varNames: string[] = [];
     progressVars: string[] = [];
@@ -130,7 +141,6 @@ class Town {
         }
     };
 
-    /** @param {ProgressScalingType} [progressScaling] */
     createProgressVars(varName, progressScaling = "default") {
         if (this[`exp${varName}`] === undefined) {
             this[`exp${varName}`] = 0;
@@ -183,16 +193,10 @@ class Town {
 
 const towns: Town[] = [];
 
-// Both of the following express the same thing, but the first introduces a dependency on the action list.
-/* * @typedef {TownNumOf<AnyAction>} TownNum */
-/** @typedef {NumOfTown<towns[number]>} TownNum */
-
-/** @type {TownNum} */
 let curTown = 0;
 
 function initializeTowns() {
     for (let i = 0; i <= 8; i++) {
-        // @ts-ignore
         towns[i] = new Town(i);
     }
-}
+}*/

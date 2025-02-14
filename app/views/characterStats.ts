@@ -10,7 +10,7 @@ export function initializeCharacterStats(state: GameState) {
     let left = 0, top = 0;
     for (const stat of stats) {
         const longStat = stat;
-        const description = '${stat} goes brrrr';
+        const description = `${stat} goes brrrr`;
         const statContainer = document.createElement('div');
         statContainer.className = `statContainer showthat stat-${stat}`;
         statContainer.style.left = `${left}%`
@@ -121,7 +121,7 @@ function updateStat(state: GameState, stat: CharStat): void {
         requireElementById(`stat${stat}Level2`).textContent = formatNumber(statDetails.level);
         requireElementById(`stat${stat}LevelExp`).textContent = intToString(statDetails.currentExperience, 0);
         requireElementById(`stat${stat}LevelExpNeeded`).textContent = intToString(statDetails.experienceForNextLevel, 0);
-        requireElementById(`stat${stat}LevelProgress`).textContent = statDetails.percentToNextLevel.toFixed(1) + '%';
+        requireElementById(`stat${stat}LevelProgress`).textContent = statDetails.percentToNextLevel.toFixed(1);
 
         requireElementById(`stat${stat}Talent2`).textContent = formatNumber(talentDetails.level);
         requireElementById(`stat${stat}TalentExp`).textContent = intToString(talentDetails.currentExperience, 0);
@@ -129,7 +129,7 @@ function updateStat(state: GameState, stat: CharStat): void {
         // TODO: Calculate this.
         const talentMulti = 1;
         requireElementById(`stat${stat}TalentMult`).textContent = intToString(talentMulti, 2);
-        requireElementById(`stat${stat}TalentProgress`).textContent = talentDetails.percentToNextLevel.toFixed(1) + '%';
+        requireElementById(`stat${stat}TalentProgress`).textContent = talentDetails.percentToNextLevel.toFixed(1);
         requireElementById(`stat${stat}TotalMult`).textContent = intToString(getTotalBonusXP(state, stat), 2);
     }
 };

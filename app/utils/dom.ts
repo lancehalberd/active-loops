@@ -22,3 +22,7 @@ export function requireTypedElementById<T>(id: string, class: Class extends T): 
     return element;
 }
 */
+
+export function toggleVisibility(element: HTMLElement, show: boolean) {
+    element.style.visibility = show ? "" : "hidden";
+}

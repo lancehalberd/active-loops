@@ -40,6 +40,28 @@ interface Action {
     label: string
     skills?: {[key in SkillKey]?: Computed<number, Action>}
     onComplete?: (state: GameState) => void
+
+
+    /*
+    type: E["type"];
+    expMult: E["expMult"];
+    townNum: E["townNum"];
+    story?: (completed: number) => void,
+    storyReqs?: (storyNum: number) => boolean;
+    stats: E["stats"];
+    canStart(loopCounter?: number): boolean;
+    cost?: () => void,
+    manaCost(): number;
+    goldCost?: () => number;
+    allowed?: () => number;
+    visible(): boolean;
+    unlocked(): boolean;
+    finish(): void;
+    skills?: E["skills"];
+    grantsBuff?: E["grantsBuff"];
+    affectedBy?: readonly string[];
+    progressScaling?: ProgressScalingType;
+    */
 }
 
 interface DungeonFloorState {
@@ -100,36 +122,7 @@ interface Window {
     [key: string]: any;
 }
 
-// Game Data
-// computed()
-
-// State Data
-// X explored/learned/followed
-
-// Loop Data
-// pots smashed(good/bad)
-
-/*interface Action<N, E> {
-    // provided as extras in constructor:
-    type: E["type"];
-    expMult: E["expMult"];
-    townNum: E["townNum"];
-    story?: (completed: number) => void,
-    storyReqs?: (storyNum: number) => boolean;
-    stats: E["stats"];
-    canStart(loopCounter?: number): boolean;
-    cost?: () => void,
-    manaCost(): number;
-    goldCost?: () => number;
-    allowed?: () => number;
-    visible(): boolean;
-    unlocked(): boolean;
-    finish(): void;
-    skills?: E["skills"];
-    grantsBuff?: E["grantsBuff"];
-    affectedBy?: readonly string[];
-    progressScaling?: ProgressScalingType;
-}
+/*
 
 declare interface MultipartAction<const N, const E> {
     segments: number;
@@ -143,19 +136,12 @@ declare interface MultipartAction<const N, const E> {
     completedTooltip?: () => string;
 }
 
-declare interface DungeonAction<const N, const E> {
-
-}
 
 declare interface TrialAction<const N, const E> {
     floorReward(): ReturnType<E["floorReward"]>;
     baseProgress(): number;
     baseScaling: E["baseScaling"];
     exponentScaling?: E["exponentScaling"];
-}
-
-declare interface AssassinAction<const N, const E> {
-
 }
 
 type DTJHTMLTag = "span" | "div" | "ol" | "ul" | "li" | "table" | "tr" | "td";

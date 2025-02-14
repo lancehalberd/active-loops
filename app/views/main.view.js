@@ -12,12 +12,9 @@ class View {
         this.updateCurrentActionsDivs();
         this.updateTotalTicks();
         this.updateAddAmount(1);
-        this.createTownActions();
         this.updateProgressActions();
         this.updateLockedHidden();
         this.updateSoulstones();
-        this.showTown(0);
-        this.showActions(false);
         this.updateTrainingLimits();
         this.changeStatView();
         this.changeTheme(true);
@@ -860,55 +857,6 @@ class View {
         }
     };
 
-    showTown(townNum) {
-        if (!towns[townNum].unlocked()) return;
-
-        if (townNum === 0) {
-            document.getElementById("townViewLeft").style.visibility = "hidden";
-        } else {
-            document.getElementById("townViewLeft").style.visibility = "";
-        }
-
-        if (townNum === Math.max(...townsUnlocked)) {
-            document.getElementById("townViewRight").style.visibility = "hidden";
-        } else {
-            document.getElementById("townViewRight").style.visibility = "";
-        }
-
-        for (let i = 0; i < actionOptionsTown.length; i++) {
-            actionOptionsTown[i].style.display = "none";
-            actionStoriesTown[i].style.display = "none";
-            townInfos[i].style.display = "none";
-        }
-        if (actionStoriesShowing) actionStoriesTown[townNum].style.display = "";
-        else actionOptionsTown[townNum].style.display = "";
-        townInfos[townNum].style.display = "";
-        $("#TownSelect").val(townNum);
-        htmlElement("shortTownColumn").classList.remove(`zone-${townShowing+1}`);
-        htmlElement("shortTownColumn").classList.add(`zone-${townNum+1}`);
-        document.getElementById("townDesc").textContent = _txt(`towns>town${townNum}>desc`);
-        townShowing = townNum;
-    };
-
-    showActions(stories) {
-        for (let i = 0; i < actionOptionsTown.length; i++) {
-            actionOptionsTown[i].style.display = "none";
-            actionStoriesTown[i].style.display = "none";
-        }
-
-        if (stories) {
-            document.getElementById("actionsViewLeft").style.visibility = "";
-            document.getElementById("actionsViewRight").style.visibility = "hidden";
-            actionStoriesTown[townShowing].style.display = "";
-        } else {
-            document.getElementById("actionsViewLeft").style.visibility = "hidden";
-            document.getElementById("actionsViewRight").style.visibility = "";
-            actionOptionsTown[townShowing].style.display = "";
-        }
-
-        document.getElementById("actionsTitle").textContent = _txt(`actions>title${(stories) ? "_stories" : ""}`);
-        actionStoriesShowing = stories;
-    };
 
     toggleHiding() {
         document.documentElement.classList.toggle("editing-hidden-vars");
@@ -960,23 +908,6 @@ class View {
             document.getElementById(`load${i + 1}`).textContent = loadoutnames[i];
         }
         inputElement("renameLoadout").value = loadoutnames[curLoadout - 1];
-    };
-
-    createTownActions() {
-        if (actionOptionsTown[0].querySelector(".actionOrTravelContainer")) return;
-        for (const action of towns.flatMap(t => t.totalActionList)) {
-            this.createTownAction(action);
-        }
-        for (const varName of towns.flatMap(t => t.allVarNames)) {
-            const action = totalActionList.find(a => a.varName === varName);
-            if (isActionOfType(action, "limited")) this.createTownInfo(action);
-            if (isActionOfType(action, "progress")) {
-                if (action.name.startsWith("Survey")) this.createGlobalSurveyProgress(action);
-                this.createActionProgress(action);
-            }
-            if (isActionOfType(action, "multipart")) this.createMultiPartPBar(action);
-        }
-        if (options.highlightNew) this.highlightIncompleteActions();
     };
 
     /** @param {ActionOfType<"progress">} action  */
@@ -1639,18 +1570,6 @@ function scrollToPanel(event, target) {
     }
 
     return false;
-}
-
-const curActionsDiv = document.getElementById("curActionsList");
-const nextActionsDiv = document.getElementById("nextActionsList");
-const actionOptionsTown = [];
-const actionStoriesTown = [];
-const townInfos = [];
-for (let i = 0; i <= 8; i++) {
-    actionOptionsTown[i] = document.getElementById(`actionOptionsTown${i}`);
-    actionOptionsTown[i].append(Rendered.html`<div class="actionDiv"></div><div class="travelDiv">`);
-    actionStoriesTown[i] = document.getElementById(`actionStoriesTown${i}`);
-    townInfos[i] = document.getElementById(`townInfo${i}`);
 }
 
 /** @param {Element} theDiv @param {StatName} stat  */
